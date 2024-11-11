@@ -5,5 +5,6 @@ void init();
 void startGameLoop();
 void cleanup();
 void mainMenu();
+void gameOver(int score);
 
 enum MoveDirection { UP, DOWN, LEFT, RIGHT };
