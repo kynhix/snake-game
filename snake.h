@@ -22,12 +22,15 @@ typedef struct snake_state {
   int snake_speed;
 } snake_state;
 
+// save system
+void loadFromSave();
+void saveToFile();
+
 typedef struct snake_cell {
   int x, y;
   struct snake_cell *next;
 } snake_cell;
 
-void loadFromSave();
-void saveToFile();
-
+// snake functions
+void freeSnake(snake_cell *head);
 void removeSnakeTail(snake_cell *head);

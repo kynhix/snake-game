@@ -238,16 +238,19 @@ void startGameLoop() {
   }
 
   // free allocated memory
-  snake_cell *node = snake_head;
-  while (node) {
-    snake_cell *old_node = node;
-    node = node->next;
-    free(old_node);
-  }
+  freeSnake(snake_head);
 
   erase();
   refresh();
   gameOver(0);
+}
+
+void freeSnake(snake_cell *head) {
+  while (head) {
+    snake_cell *old = head;
+    head = head->next;
+    free(old);
+  }
 }
 
 void removeSnakeTail(snake_cell *head) {
