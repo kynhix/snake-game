@@ -16,8 +16,18 @@ void init() {
   noecho();             // disable echo of input characters
   curs_set(0);          // hide the cursor
   keypad(stdscr, TRUE); // enable keyboard
+  loadFromSave();
   // start_color();        // enable color
 }
+
+void loadFromSave() {
+  FILE *fptr;
+  fptr = fopen("snake.txt", "w");
+  global_state.high_score_head = NULL;
+  global_state.snake_speed = 1;
+}
+
+void saveToFile() {}
 
 void mainMenu() {
   const char *choices[] = {"Play Game", "High Scores", "Settings", "Exit"};
