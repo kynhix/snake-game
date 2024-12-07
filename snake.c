@@ -82,19 +82,22 @@ cleanup:
 void cleanup() { endwin(); }
 
 void startGameLoop() {
-  int x = 1, y = 1, dx = 1, dy = 0;
   enum MoveDirection movement = RIGHT;
-  nodelay(stdscr, TRUE);
+  int x = 1, y = 1, dx = 1, dy = 0;
+  int score = 0;
 
+  nodelay(stdscr, TRUE);
   while (1) {
-    waitNextFrame();
     erase();
+    // draw snek
     mvaddch(y, x, 'O');
+    // draw border
     box(stdscr, 0, 0);
     refresh();
 
     int ch = getch();
 
+    // Key detection
     if (ch == KEY_LEFT && movement != RIGHT) {
       movement = LEFT;
     } else if (ch == KEY_RIGHT && movement != LEFT) {
@@ -105,6 +108,7 @@ void startGameLoop() {
       movement = DOWN;
     }
 
+    // Movement
     if (movement == LEFT) {
       dx = -1;
       dy = 0;
@@ -119,18 +123,22 @@ void startGameLoop() {
       dy = 1;
     }
 
+    // apply movement
     x += dx;
     y += dy;
 
+    // get max w and h of screen
     int w, h;
     getmaxyx(stdscr, h, w);
+
+    // check if snake is colliding with a wall
     if (x < 1 || y < 1 || x == w || y == h) {
-      goto gameover;
-      return;
+      break;
     }
+
+    waitNextFrame();
   }
 
-gameover:
   erase();
   refresh();
   gameOver(0);
@@ -140,14 +148,18 @@ void gameOver(int score) {
   int choice = 0;
   WINDOW *win = newwin(6, 40, 0, 0);
 
+  // game over menu
   box(win, 0, 0);
   mvwprintw(win, 0, 1, "Game Over");
   mvwprintw(win, 1, 1, "Score: %d", score);
   mvwprintw(win, 2, 1, "High Score: ");
-  mvwprintw(win, 4, 1, "Press enter to conitnue");
+  mvwprintw(win, 4, 1, "Press enter to continue");
   wrefresh(win);
+
+  // wait for user to press enter
   while (wgetch(win) != 10)
     ;
+  // cleanup
   clear();
   refresh();
   delwin(win);
