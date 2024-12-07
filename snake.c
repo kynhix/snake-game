@@ -27,6 +27,7 @@ void mainMenu() {
 
   nodelay(win, TRUE);
   while (1) {
+    // key detection
     const int c = wgetch(win);
     switch (c) {
     case KEY_UP:
@@ -59,12 +60,16 @@ void mainMenu() {
     case 'q': // Quit on 'q'
       goto cleanup;
     }
-    waitNextFrame();
+
+    // clear previous screen
     werase(win);
+
+    // draw menu border
     box(win, 0, 0);
     mvwprintw(win, 0, 1, "%s", TITLE);
     for (int i = 0; i < NUM_CHOICES; ++i) {
       if (choice == i) {
+        // bold and star selected choice
         wattron(win, A_BOLD);
         mvwprintw(win, i + 1, 3, "* %-18s", choices[i]);
         wattroff(win, A_BOLD);
@@ -73,6 +78,8 @@ void mainMenu() {
       }
     }
     wrefresh(win);
+
+    waitNextFrame();
   }
 
 cleanup:
@@ -148,7 +155,7 @@ void gameOver(int score) {
   int choice = 0;
   WINDOW *win = newwin(6, 40, 0, 0);
 
-  // game over menu
+  // game over screen
   box(win, 0, 0);
   mvwprintw(win, 0, 1, "Game Over");
   mvwprintw(win, 1, 1, "Score: %d", score);
@@ -158,9 +165,12 @@ void gameOver(int score) {
 
   // wait for user to press enter
   while (wgetch(win) != 10)
-    ;
+    usleep(10000);
+
   // cleanup
   clear();
   refresh();
   delwin(win);
+
+  // back to main menu
 }
