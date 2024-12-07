@@ -2,6 +2,8 @@
 #include <ncurses.h>
 #include <unistd.h>
 
+snake_state global_state;
+
 int main() {
   init();
   mainMenu();
@@ -97,7 +99,7 @@ void startGameLoop() {
   while (1) {
     erase();
     // draw snek
-    mvaddch(y, x, 'O');
+    mvaddch(y, x, '@');
     // draw border
     box(stdscr, 0, 0);
     refresh();
