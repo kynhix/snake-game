@@ -27,7 +27,7 @@ void loadFromSave() {
   global_state.high_score_head = NULL;
   FILE *fptr = fopen("snake.txt", "r");
   if (!fptr) {
-    global_state.snake_speed = 1;
+    global_state.snake_speed = 3;
     return;
   }
 
@@ -177,9 +177,18 @@ void startGameLoop() {
   food.x = 5;
   food.y = 5;
 
+  int skipFrame = 0;
+
   while (1) {
     // Key detection
     movement = getMoveDirection(getch(), movement);
+
+    skipFrame = skipFrame - global_state.snake_speed;
+    if (skipFrame > 0) {
+      waitNextFrame();
+      continue;
+    }
+    skipFrame = 5;
 
     erase();
     // draw snek
@@ -203,15 +212,21 @@ void startGameLoop() {
     // apply movement
     head = createSnakeCell(head->x + dx, head->y + dy, head);
 
-    // remove last node
-    removeSnakeTail(head);
-
     // get max w and h of screen
     int w, h;
     getmaxyx(stdscr, h, w);
+
     // check if snake is colliding with a wall
     if (head->x < 1 || head->y < 1 || head->x == w || head->y == h) {
       break;
+    }
+
+    if (head->x == food.x && head->y == food.y) {
+      food.x = 20;
+      food.y = 20;
+    } else {
+      // remove snake tail
+      removeSnakeTail(head);
     }
 
     waitNextFrame();
@@ -227,6 +242,8 @@ void startGameLoop() {
   // game over screen
   gameOver(score);
 }
+
+void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head, int w, int h) {}
 
 MoveDirection getMoveDirection(int ch, MoveDirection move) {
   if (ch == KEY_LEFT && move != RIGHT) {

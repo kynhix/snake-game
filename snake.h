@@ -39,3 +39,4 @@ void removeSnakeTail(snake_cell *head);
 typedef struct snake_food {
   int x, y;
 } snake_food;
+void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head, int w, int h);
