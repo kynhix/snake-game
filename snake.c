@@ -172,10 +172,7 @@ void startGameLoop() {
   int score = 0;
 
   nodelay(stdscr, TRUE);
-  snake_cell *snake_head = malloc(sizeof(snake_cell));
-  snake_head->next = NULL;
-  snake_head->x = 1;
-  snake_head->y = 1;
+  snake_cell *snake_head = createSnakeCell(1, 1, NULL);
 
   while (1) {
     erase();
@@ -217,11 +214,8 @@ void startGameLoop() {
     }
 
     // apply movement
-    snake_cell *new_head = malloc(sizeof(snake_cell));
-    new_head->next = snake_head;
-    new_head->x = snake_head->x + dx;
-    new_head->y = snake_head->y + dy;
-    snake_head = new_head;
+    snake_head =
+        createSnakeCell(snake_head->x + dx, snake_head->y + dy, snake_head);
 
     removeSnakeTail(snake_head);
 
@@ -243,6 +237,14 @@ void startGameLoop() {
   erase();
   refresh();
   gameOver(0);
+}
+
+snake_cell *createSnakeCell(int x, int y, snake_cell *next) {
+  snake_cell *new_cell = malloc(sizeof(snake_cell));
+  new_cell->next = next;
+  new_cell->x = x;
+  new_cell->y = y;
+  return new_cell;
 }
 
 void freeSnake(snake_cell *head) {
