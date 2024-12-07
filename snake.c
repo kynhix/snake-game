@@ -168,7 +168,7 @@ cleanup:
 void cleanup() { endwin(); }
 
 void startGameLoop() {
-  enum MoveDirection movement = RIGHT;
+  MoveDirection movement = RIGHT;
   int score = 0;
 
   nodelay(stdscr, TRUE);
@@ -178,6 +178,9 @@ void startGameLoop() {
   food.y = 5;
 
   while (1) {
+    // Key detection
+    movement = getMoveDirection(getch(), movement);
+
     erase();
     // draw snek
     mvaddch(head->y, head->x, '@');
@@ -193,34 +196,14 @@ void startGameLoop() {
     box(stdscr, 0, 0);
     refresh();
 
-    int ch = getch();
-
-    // Key detection
-    if (ch == KEY_LEFT && movement != RIGHT) {
-      movement = LEFT;
-    } else if (ch == KEY_RIGHT && movement != LEFT) {
-      movement = RIGHT;
-    } else if (ch == KEY_UP && movement != DOWN) {
-      movement = UP;
-    } else if (ch == KEY_DOWN && movement != UP) {
-      movement = DOWN;
-    }
-
     // Movement
     int dx = 0, dy = 0;
-    if (movement == LEFT) {
-      dx = -1;
-    } else if (movement == RIGHT) {
-      dx = 1;
-    } else if (movement == UP) {
-      dy = -1;
-    } else if (movement == DOWN) {
-      dy = 1;
-    }
+    getMoveDelta(&dx, &dy, movement);
 
     // apply movement
     head = createSnakeCell(head->x + dx, head->y + dy, head);
 
+    // remove last node
     removeSnakeTail(head);
 
     // get max w and h of screen
@@ -243,6 +226,31 @@ void startGameLoop() {
 
   // game over screen
   gameOver(score);
+}
+
+MoveDirection getMoveDirection(int ch, MoveDirection move) {
+  if (ch == KEY_LEFT && move != RIGHT) {
+    return LEFT;
+  } else if (ch == KEY_RIGHT && move != LEFT) {
+    return RIGHT;
+  } else if (ch == KEY_UP && move != DOWN) {
+    return UP;
+  } else if (ch == KEY_DOWN && move != UP) {
+    return DOWN;
+  }
+  return move;
+}
+
+void getMoveDelta(int *dx, int *dy, MoveDirection move) {
+  if (move == LEFT) {
+    *dx = -1;
+  } else if (move == RIGHT) {
+    *dx = 1;
+  } else if (move == UP) {
+    *dy = -1;
+  } else if (move == DOWN) {
+    *dy = 1;
+  }
 }
 
 snake_cell *createSnakeCell(int x, int y, snake_cell *next) {

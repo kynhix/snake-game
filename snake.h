@@ -8,7 +8,9 @@ void cleanup();
 void mainMenu();
 void gameOver(int score);
 
-enum MoveDirection { UP, DOWN, LEFT, RIGHT };
+typedef enum MoveDirection { UP, DOWN, LEFT, RIGHT } MoveDirection;
+MoveDirection getMoveDirection(int ch, MoveDirection move);
+void getMoveDelta(int *x, int *y, MoveDirection move);
 
 typedef struct high_score_node {
   char *name;
