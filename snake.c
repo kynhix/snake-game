@@ -90,7 +90,7 @@ void cleanup() { endwin(); }
 
 void startGameLoop() {
   enum MoveDirection movement = RIGHT;
-  int x = 1, y = 1, dx = 1, dy = 0;
+  int x = 1, y = 1;
   int score = 0;
 
   nodelay(stdscr, TRUE);
@@ -116,20 +116,16 @@ void startGameLoop() {
     }
 
     // Movement
+    int dx = 0, dy = 0;
     if (movement == LEFT) {
       dx = -1;
-      dy = 0;
     } else if (movement == RIGHT) {
       dx = 1;
-      dy = 0;
     } else if (movement == UP) {
-      dx = 0;
       dy = -1;
     } else if (movement == DOWN) {
-      dx = 0;
       dy = 1;
     }
-
     // apply movement
     x += dx;
     y += dy;
@@ -137,7 +133,6 @@ void startGameLoop() {
     // get max w and h of screen
     int w, h;
     getmaxyx(stdscr, h, w);
-
     // check if snake is colliding with a wall
     if (x < 1 || y < 1 || x == w || y == h) {
       break;
