@@ -172,18 +172,23 @@ void startGameLoop() {
   int score = 0;
 
   nodelay(stdscr, TRUE);
-  snake_cell *snake_head = createSnakeCell(1, 1, NULL);
+  snake_cell *head = createSnakeCell(1, 1, NULL);
+  snake_food food;
+  food.x = 5;
+  food.y = 5;
 
   while (1) {
     erase();
     // draw snek
-    mvaddch(snake_head->y, snake_head->x, '@');
-    snake_cell *node = snake_head->next;
+    mvaddch(head->y, head->x, '@');
+    snake_cell *node = head->next;
     // snek body
     while (node) {
       mvaddch(node->y, node->x, '0');
       node = node->next;
     }
+    // draw food
+    mvaddch(food.y, food.x, '*');
     // draw border
     box(stdscr, 0, 0);
     refresh();
@@ -214,17 +219,15 @@ void startGameLoop() {
     }
 
     // apply movement
-    snake_head =
-        createSnakeCell(snake_head->x + dx, snake_head->y + dy, snake_head);
+    head = createSnakeCell(head->x + dx, head->y + dy, head);
 
-    removeSnakeTail(snake_head);
+    removeSnakeTail(head);
 
     // get max w and h of screen
     int w, h;
     getmaxyx(stdscr, h, w);
     // check if snake is colliding with a wall
-    if (snake_head->x < 1 || snake_head->y < 1 || snake_head->x == w ||
-        snake_head->y == h) {
+    if (head->x < 1 || head->y < 1 || head->x == w || head->y == h) {
       break;
     }
 
@@ -232,11 +235,14 @@ void startGameLoop() {
   }
 
   // free allocated memory
-  freeSnake(snake_head);
+  freeSnake(head);
 
+  // clear screen
   erase();
   refresh();
-  gameOver(0);
+
+  // game over screen
+  gameOver(score);
 }
 
 snake_cell *createSnakeCell(int x, int y, snake_cell *next) {
@@ -276,7 +282,7 @@ void gameOver(int score) {
   box(win, 0, 0);
   mvwprintw(win, 0, 1, "Game Over");
   mvwprintw(win, 1, 1, "Score: %d", score);
-  mvwprintw(win, 2, 1, "High Score: ");
+  mvwprintw(win, 2, 1, "High Score: 0");
   mvwprintw(win, 4, 1, "Press enter to continue");
   wrefresh(win);
 

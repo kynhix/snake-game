@@ -22,7 +22,6 @@ typedef struct snake_state {
   int snake_speed;
 } snake_state;
 
-// save system
 void loadFromSave();
 void saveToFile();
 
@@ -31,7 +30,10 @@ typedef struct snake_cell {
   struct snake_cell *next;
 } snake_cell;
 
-// snake functions
 snake_cell *createSnakeCell(int x, int y, snake_cell *next);
 void freeSnake(snake_cell *head);
 void removeSnakeTail(snake_cell *head);
+
+typedef struct snake_food {
+  int x, y;
+} snake_food;
