@@ -29,3 +29,5 @@ typedef struct snake_cell {
 
 void loadFromSave();
 void saveToFile();
+
+void removeSnakeTail(snake_cell *head);

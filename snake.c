@@ -172,17 +172,19 @@ void startGameLoop() {
   int score = 0;
 
   nodelay(stdscr, TRUE);
-  snake_cell snake_head;
-  snake_head.x = 1;
-  snake_head.y = 1;
-  snake_head.next = NULL;
+  snake_cell *snake_head = malloc(sizeof(snake_cell));
+  snake_head->next = NULL;
+  snake_head->x = 1;
+  snake_head->y = 1;
 
   while (1) {
     erase();
     // draw snek
-    mvaddch(snake_head.y, snake_head.x, '@');
-    snake_cell *node = snake_head.next;
+    mvaddch(snake_head->y, snake_head->x, '@');
+    snake_cell *node = snake_head->next;
+    // snek body
     while (node) {
+      mvaddch(node->y, node->x, '0');
       node = node->next;
     }
     // draw border
@@ -213,27 +215,52 @@ void startGameLoop() {
     } else if (movement == DOWN) {
       dy = 1;
     }
+
     // apply movement
-    snake_cell new_head;
-    new_head.x += dx;
-    new_head.y += dy;
-    new_head.next = &snake_head;
+    snake_cell *new_head = malloc(sizeof(snake_cell));
+    new_head->next = snake_head;
+    new_head->x = snake_head->x + dx;
+    new_head->y = snake_head->y + dy;
+    snake_head = new_head;
+
+    removeSnakeTail(snake_head);
 
     // get max w and h of screen
     int w, h;
     getmaxyx(stdscr, h, w);
     // check if snake is colliding with a wall
-    if (snake_head.x < 1 || snake_head.y < 1 || snake_head.x == w ||
-        snake_head.y == h) {
+    if (snake_head->x < 1 || snake_head->y < 1 || snake_head->x == w ||
+        snake_head->y == h) {
       break;
     }
 
     waitNextFrame();
   }
 
+  // free allocated memory
+  snake_cell *node = snake_head;
+  while (node) {
+    snake_cell *old_node = node;
+    node = node->next;
+    free(old_node);
+  }
+
   erase();
   refresh();
   gameOver(0);
+}
+
+void removeSnakeTail(snake_cell *head) {
+  if (!head->next) {
+    return;
+  }
+  while (head) {
+    if (!head->next->next) {
+      free(head->next);
+      head->next = NULL;
+    }
+    head = head->next;
+  }
 }
 
 void gameOver(int score) {
