@@ -169,14 +169,22 @@ void cleanup() { endwin(); }
 
 void startGameLoop() {
   enum MoveDirection movement = RIGHT;
-  int x = 1, y = 1;
   int score = 0;
 
   nodelay(stdscr, TRUE);
+  snake_cell snake_head;
+  snake_head.x = 1;
+  snake_head.y = 1;
+  snake_head.next = NULL;
+
   while (1) {
     erase();
     // draw snek
-    mvaddch(y, x, '@');
+    mvaddch(snake_head.y, snake_head.x, '@');
+    snake_cell *node = snake_head.next;
+    while (node) {
+      node = node->next;
+    }
     // draw border
     box(stdscr, 0, 0);
     refresh();
@@ -206,14 +214,17 @@ void startGameLoop() {
       dy = 1;
     }
     // apply movement
-    x += dx;
-    y += dy;
+    snake_cell new_head;
+    new_head.x += dx;
+    new_head.y += dy;
+    new_head.next = &snake_head;
 
     // get max w and h of screen
     int w, h;
     getmaxyx(stdscr, h, w);
     // check if snake is colliding with a wall
-    if (x < 1 || y < 1 || x == w || y == h) {
+    if (snake_head.x < 1 || snake_head.y < 1 || snake_head.x == w ||
+        snake_head.y == h) {
       break;
     }
 
