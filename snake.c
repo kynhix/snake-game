@@ -1,5 +1,8 @@
 #include "snake.h"
 #include <ncurses.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 snake_state global_state;
@@ -21,13 +24,77 @@ void init() {
 }
 
 void loadFromSave() {
-  FILE *fptr;
-  fptr = fopen("snake.txt", "w");
   global_state.high_score_head = NULL;
-  global_state.snake_speed = 1;
+  FILE *fptr = fopen("snake.txt", "r");
+  if (!fptr) {
+    global_state.snake_speed = 1;
+    return;
+  }
+
+  global_state.snake_speed = fgetc(fptr) - '0';
+  char namebuf[100];
+  char scorebuf[100];
+
+  while (fgets(namebuf, sizeof(namebuf), fptr) &&
+         fgets(scorebuf, sizeof(scorebuf), fptr)) {
+    // Remove newline characters
+    namebuf[strcspn(namebuf, "\n")] = 0;
+    scorebuf[strcspn(scorebuf, "\n")] = 0;
+
+    // Allocate and check new node
+    high_score_node *newScore = malloc(sizeof(high_score_node));
+    if (!newScore) {
+      fclose(fptr);
+      return;
+    }
+
+    // Allocate and check name string
+    newScore->name = malloc(strlen(namebuf) + 1); // +1 for null terminator
+    if (!newScore->name) {
+      free(newScore);
+      fclose(fptr);
+      return;
+    }
+
+    // Copy data
+    strcpy(newScore->name, namebuf);
+    newScore->score = atoi(scorebuf);
+
+    // Initialize pointers
+    newScore->next = NULL;
+    newScore->prev = NULL;
+
+    // Link into list
+    if (!global_state.high_score_head) {
+      global_state.high_score_head = newScore;
+    } else {
+      newScore->next = global_state.high_score_head;
+      global_state.high_score_head->prev = newScore;
+      global_state.high_score_head = newScore;
+    }
+  }
+
+  fclose(fptr);
 }
 
-void saveToFile() {}
+void saveToFile() {
+  FILE *fptr = fopen("snake.txt", "w");
+  if (!fptr) {
+    return;
+  }
+
+  // Save snake speed
+  fprintf(fptr, "%d\n", global_state.snake_speed);
+
+  // Save high scores
+  high_score_node *current = global_state.high_score_head;
+  while (current != NULL) {
+    fprintf(fptr, "%s\n%d\n", current->name, current->score);
+    current = current->next;
+  }
+
+  fclose(fptr);
+}
 
 void mainMenu() {
   const char *choices[] = {"Play Game", "High Scores", "Settings", "Exit"};

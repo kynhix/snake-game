@@ -11,7 +11,7 @@ void gameOver(int score);
 enum MoveDirection { UP, DOWN, LEFT, RIGHT };
 
 typedef struct high_score_node {
-  const char *name;
+  char *name;
   int score;
   struct high_score_node *next;
   struct high_score_node *prev;
