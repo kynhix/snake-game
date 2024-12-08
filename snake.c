@@ -411,7 +411,7 @@ void gameOver(int score) {
     high_score->name = malloc(sizeof(char) * 100);
     strcpy(high_score->name, "Kris Yay :D");
     global_state.high_score_head = high_score;
-    for (int i = 0; i < 9 && high_score != NULL; ++i) {
+    for (int i = 0; i < 10 && high_score != NULL; ++i) {
       high_score = high_score->next;
     }
     // remove 10th highest score
