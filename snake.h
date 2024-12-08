@@ -8,10 +8,14 @@ void init();
 void startGameLoop();
 void cleanup();
 void mainMenu();
+void settingsMenu();
+void speedMenu();
+void highscoreMenu();
 void gameOver(int score);
 void drawMenu(WINDOW *win, const char *title, int n, int choice,
               const char *choice_names[]);
-int getMenuSelection(const char *title, int n, const char *choice_names[]);
+int getMenuSelection(const char *title, int n, const char *choice_names[],
+                     int choice);
 
 typedef enum MoveDirection { UP, DOWN, LEFT, RIGHT } MoveDirection;
 MoveDirection getMoveDirection(int ch, MoveDirection move);

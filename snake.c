@@ -99,53 +99,81 @@ void saveToFile() {
 void mainMenu() {
   const char *choices[] = {"Play Game", "High Scores", "Settings", "Exit"};
   while (1) {
-    switch (getMenuSelection("Main Menu", 4, choices)) {
+    switch (getMenuSelection("Main Menu", 4, choices, 0)) {
     case -1:
       return;
     case 0:
       startGameLoop();
       break;
     case 1:
-      // todo implement high score
+      highscoreMenu();
       break;
     case 2:
-      // todo implement settings
+      settingsMenu();
       break;
     case 3:
       return;
     }
   }
-
-  // case 10: // Enter key
-  //   break;
 }
 
-int getMenuSelection(const char *title, int n, const char *choice_names[]) {
-  int choice = 0;
+void settingsMenu() {
+  const char *choices[] = {"Snake Speed", "Back"};
+  while (1) {
+    switch (getMenuSelection("Settings Menu", 2, choices, 0)) {
+    case 0:
+      speedMenu();
+      break;
+    default:
+      return;
+    }
+  }
+}
+
+void speedMenu() {
+  const char *choices[] = {"1", "2", "3", "4", "5", "Back"};
+  int speed =
+      getMenuSelection("Snake Speed", 6, choices, global_state.snake_speed - 1);
+  if (speed < 0 || speed > 4) {
+    return;
+  }
+
+  global_state.snake_speed = speed + 1;
+  saveToFile();
+}
+
+void highscoreMenu() {}
+
+int getMenuSelection(const char *title, int n, const char *choice_names[],
+                     int choice) {
   WINDOW *win = newwin(n + 2, 40, 0, 0);
   keypad(win, TRUE); // enable arrow keys
 
   while (1) {
     drawMenu(win, title, n, choice, choice_names);
-    switch (wgetch(win)) {
-    case KEY_UP:
+    const int ch = wgetch(win);
+    if (ch == KEY_UP) {
       if (choice == 0)
         choice = n - 1;
       else
         --choice;
-      break;
-    case KEY_DOWN:
+    } else if (ch == KEY_DOWN) {
       if (choice == n - 1)
         choice = 0;
       else
         ++choice;
+    } else if (ch == 'q') {
+      choice = -1;
       break;
-    case 'q': // Quit on 'q'
-      return -1;
-    case 10:
-      return choice;
+    } else if (ch == 10) {
+      break;
     }
   }
+
+  erase();
+  refresh();
+  delwin(win);
+  return choice;
 }
 
 void drawMenu(WINDOW *win, const char *title, int n, int choice,
@@ -269,7 +297,24 @@ bool isSnakeColliding(snake_cell *head) {
   return false;
 }
 
-void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head, int w, int h) {}
+void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head, int w, int h) {
+  w = w - 2;
+  h = h - 2;
+
+  int n = w * h;
+  int valid_cells[n];
+  memset(valid_cells, 1, n * sizeof(int));
+
+  while (head) {
+    valid_cells[head->x - 1 + head->y * (w + 1)] = 0;
+    head = head->next;
+  }
+
+  int m = n - 1;
+  while (!valid_cells[m]) {
+    --m;
+  }
+}
 
 MoveDirection getMoveDirection(int ch, MoveDirection move) {
   if (ch == KEY_LEFT && move != RIGHT) {
