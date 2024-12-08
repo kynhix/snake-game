@@ -321,32 +321,28 @@ void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head) {
     valid_cells[i] = i;
 
   while (head) {
-    valid_cells[(head->x - 1) + (head->y - 1) * (w + 1)] = 0;
+    valid_cells[(head->x - 1) + (head->y - 1) * w] = -1;
     head = head->next;
   }
 
-  int m = n - 1;
-  while (m > -1 && !valid_cells[m])
-    --m;
+  int valid_count = 0;
+  for (int i = 0; i < n; ++i) {
+    if (valid_cells[i] == -1)
+      continue;
 
-  if (m == -1) {
+    valid_cells[valid_count] = valid_cells[i];
+    ++valid_count;
+  }
+
+  if (valid_count == 0) {
     // WINNER
     return;
   }
-  for (int i = 0; i < m; ++i) {
-    if (valid_cells[i])
-      continue;
 
-    valid_cells[i] = valid_cells[m];
-    valid_cells[m] = 0;
-
-    while (!valid_cells[--m])
-      ;
-  }
-
-  const int r = rand() % (m + 1);
-  food->x = r % (w + 1) + 1;
-  food->y = r / (w + 1) + 1;
+  const int r = rand() % valid_count;
+  int c = valid_cells[r];
+  food->x = (c % w) + 1;
+  food->y = (c / w) + 1;
 }
 
 MoveDirection getMoveDirection(int ch, MoveDirection move) {
