@@ -434,6 +434,33 @@ void removeSnakeTail(snake_cell *head) {
   }
 }
 
+void getName(WINDOW *win, char *name) {
+  echo();
+  curs_set(1);
+  nodelay(stdscr, FALSE);
+  nocbreak();
+  flushinp();
+
+  // Move cursor to where you want the input
+  wmove(win, 10, 10);
+  printw("Enter your name: ");
+  refresh();
+
+  // Get the string
+  char temp[MAX_NAME_LEN];
+  getstr(temp);
+
+  // Copy to output, ensure null termination
+  strncpy(name, temp, MAX_NAME_LEN - 1);
+  name[MAX_NAME_LEN - 1] = '\0';
+
+  // Return to game mode settings
+  noecho();
+  cbreak();
+  nodelay(stdscr, TRUE);
+  curs_set(0);
+}
+
 void gameOver(int score) {
   int choice = 0;
   WINDOW *win = newwin(6, 40, 0, 0);
@@ -443,8 +470,12 @@ void gameOver(int score) {
     high_score_node *high_score = malloc(sizeof(high_score_node));
     high_score->score = score;
     high_score->next = global_state.high_score_head;
-    high_score->name = malloc(sizeof(char) * 100);
-    strcpy(high_score->name, "Kris Yay :D");
+    high_score->name = malloc(sizeof(char) * MAX_NAME_LEN);
+    getName(win, high_score->name);
+
+    box(win, 0, 0);
+    wrefresh(win);
+    werase(win);
     global_state.high_score_head = high_score;
     for (int i = 0; i < 10 && high_score != NULL; ++i) {
       high_score = high_score->next;

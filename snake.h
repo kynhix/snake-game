@@ -1,5 +1,6 @@
 #include <ncurses.h>
 
+#define MAX_NAME_LEN 11
 #define FRAME_RATE 33333
 #define waitNextFrame() usleep(FRAME_RATE)
 #define MAX_HIGH_SCORES 10
