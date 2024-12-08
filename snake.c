@@ -167,28 +167,36 @@ cleanup:
 
 void cleanup() { endwin(); }
 
+bool isSkipFrame(int *frame_state) {
+  *frame_state = *frame_state - global_state.snake_speed;
+  if (*frame_state > 0) {
+    return false;
+  }
+  *frame_state = 5;
+  return true;
+}
+
 void startGameLoop() {
   MoveDirection movement = RIGHT;
   int score = 0;
 
-  nodelay(stdscr, TRUE);
   snake_cell *head = createSnakeCell(1, 1, NULL);
   snake_food food;
   food.x = 5;
   food.y = 5;
 
-  int skipFrame = 0;
+  int frame_state = 0;
 
+  nodelay(stdscr, TRUE);
   while (1) {
-    // Key detection
-    movement = getMoveDirection(getch(), movement);
+    waitNextFrame();
 
-    skipFrame = skipFrame - global_state.snake_speed;
-    if (skipFrame > 0) {
-      waitNextFrame();
+    if (isSkipFrame(&frame_state)) {
       continue;
     }
-    skipFrame = 5;
+
+    // Key detection
+    movement = getMoveDirection(getch(), movement);
 
     erase();
     // draw snek
@@ -203,6 +211,7 @@ void startGameLoop() {
     mvaddch(food.y, food.x, '*');
     // draw border
     box(stdscr, 0, 0);
+    mvwprintw(stdscr, 0, 1, "Score: %d", score);
     refresh();
 
     // Movement
@@ -224,12 +233,11 @@ void startGameLoop() {
     if (head->x == food.x && head->y == food.y) {
       food.x = 20;
       food.y = 20;
+      score++;
     } else {
       // remove snake tail
       removeSnakeTail(head);
     }
-
-    waitNextFrame();
   }
 
   // free allocated memory
