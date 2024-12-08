@@ -136,7 +136,7 @@ void highscoreMenu() {
   mvwprintw(win, 11, 1, "Press Enter to Go Back");
   high_score_node *high_score = global_state.high_score_head;
   while (high_score) {
-    mvwprintw(win, i, 1, "%d %-20s - %d", i, high_score->name,
+    mvwprintw(win, i, 1, "%2d. %-10s - %d", i, high_score->name,
               high_score->score);
     high_score = high_score->next;
     ++i;
