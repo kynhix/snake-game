@@ -135,6 +135,9 @@ void highscoreMenu() {
   mvwprintw(win, 0, 1, "High Scores:");
   mvwprintw(win, 11, 1, "Press Enter to Go Back");
   high_score_node *high_score = global_state.high_score_head;
+  if (!high_score) {
+    mvwprintw(win, 1, 1, "No high scores yet :(");
+  }
   while (high_score) {
     mvwprintw(win, i, 1, "%2d. %-10s - %d", i, high_score->name,
               high_score->score);
