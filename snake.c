@@ -246,10 +246,6 @@ void startGameLoop() {
     // apply movement
     head = createSnakeCell(head->x + dx, head->y + dy, head);
 
-    if (isSnakeColliding(head)) {
-      break;
-    }
-
     if (head->x == food.x && head->y == food.y) {
       spawnFoodOnEmptySquare(&food, head);
       score++;
@@ -257,8 +253,13 @@ void startGameLoop() {
       // remove snake tail
       removeSnakeTail(head);
     }
+
+    if (isSnakeColliding(head)) {
+      break;
+    }
   }
 
+  playSnakeDeathAnimation(head, score);
   // free allocated memory
   freeSnake(head);
 
@@ -270,6 +271,50 @@ void startGameLoop() {
   gameOver(score);
 }
 
+void waitFrames(int x) {
+  for (int i = 0; i < x; ++i) {
+    waitNextFrame();
+  }
+}
+
+void playSnakeDeathAnimation(snake_cell *head, int score) {
+  erase();
+  drawSnakeGameBorder(score);
+  drawSnake(head, true);
+  refresh();
+  sleep(1);
+
+  while (head->next) {
+    removeSnakeTail(head);
+    erase();
+    drawSnakeGameBorder(score);
+    drawSnake(head, true);
+    refresh();
+    waitFrames(5);
+  }
+  waitFrames(10);
+}
+
+void drawSnakeGame(snake_cell *head, snake_food food, int score) {
+  erase();
+  drawSnake(head, false);
+  // draw food
+  mvaddch(food.y, food.x, '*');
+  drawSnakeGameBorder(score);
+  refresh();
+}
+
+void drawSnake(snake_cell *head, bool is_dead) {
+  snake_cell *node = head->next;
+  // snek body
+  while (node) {
+    mvaddch(node->y, node->x, is_dead ? 'X' : '0');
+    node = node->next;
+  }
+  // draw snek
+  mvaddch(head->y, head->x, is_dead ? '#' : '@');
+}
+
 void drawSnakeGameBorder(int score) {
   // draw border
   box(stdscr, 0, 0);
@@ -277,22 +322,6 @@ void drawSnakeGameBorder(int score) {
   const int high_score =
       global_state.high_score_head ? global_state.high_score_head->score : 0;
   mvwprintw(stdscr, 0, 1, "Score: %d - High Score: %d", score, high_score);
-}
-
-void drawSnakeGame(snake_cell *head, snake_food food, int score) {
-  erase();
-  // draw snek
-  mvaddch(head->y, head->x, '@');
-  snake_cell *node = head->next;
-  // snek body
-  while (node) {
-    mvaddch(node->y, node->x, '0');
-    node = node->next;
-  }
-  // draw food
-  mvaddch(food.y, food.x, '*');
-  drawSnakeGameBorder(score);
-  refresh();
 }
 
 bool isSnakeColliding(snake_cell *head) {
