@@ -284,6 +284,7 @@ void drawSnakeGame(snake_cell *head, snake_food food, int score) {
   mvaddch(food.y, food.x, '*');
   // draw border
   box(stdscr, 0, 0);
+  mvwprintw(stdscr, 0, 1, "Score: %d Food: (%d, %d)", score, food.x, food.y);
   mvwprintw(stdscr, 0, 1, "Score: %d", score);
   refresh();
 }
