@@ -399,11 +399,34 @@ void gameOver(int score) {
   int choice = 0;
   WINDOW *win = newwin(6, 40, 0, 0);
 
+  if (!global_state.high_score_head ||
+      score > global_state.high_score_head->score) {
+    high_score_node *high_score = malloc(sizeof(high_score_node));
+    high_score->score = score;
+    high_score->next = global_state.high_score_head;
+    high_score->name = malloc(sizeof(char) * 100);
+    strcpy(high_score->name, "Kris Yay :D");
+    global_state.high_score_head = high_score;
+    for (int i = 0; i < 9 && high_score != NULL; ++i) {
+      high_score = high_score->next;
+    }
+    // remove 10th highest score
+    if (high_score) {
+      high_score->prev->next = NULL;
+      free(high_score);
+    }
+
+    saveToFile();
+  }
+
+  const int high_score =
+      global_state.high_score_head ? global_state.high_score_head->score : 0;
+
   // game over screen
   box(win, 0, 0);
   mvwprintw(win, 0, 1, "Game Over");
   mvwprintw(win, 1, 1, "Score: %d", score);
-  mvwprintw(win, 2, 1, "High Score: 0");
+  mvwprintw(win, 2, 1, "High Score: %d", high_score);
   mvwprintw(win, 4, 1, "Press enter to continue");
   wrefresh(win);
 
