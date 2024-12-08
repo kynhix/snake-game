@@ -284,8 +284,10 @@ void drawSnakeGame(snake_cell *head, snake_food food, int score) {
   mvaddch(food.y, food.x, '*');
   // draw border
   box(stdscr, 0, 0);
-  mvwprintw(stdscr, 0, 1, "Score: %d Food: (%d, %d)", score, food.x, food.y);
-  mvwprintw(stdscr, 0, 1, "Score: %d", score);
+  // mvwprintw(stdscr, 0, 1, "Score: %d Food: (%d, %d)", score, food.x, food.y);
+  const int high_score =
+      global_state.high_score_head ? global_state.high_score_head->score : 0;
+  mvwprintw(stdscr, 0, 1, "Score: %d - High Score: %d", score, high_score);
   refresh();
 }
 
