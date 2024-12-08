@@ -1,3 +1,5 @@
+#include <ncurses.h>
+
 #define FRAME_RATE 33333
 #define waitNextFrame() usleep(FRAME_RATE)
 #define MAX_HIGH_SCORES 10
@@ -7,6 +9,9 @@ void startGameLoop();
 void cleanup();
 void mainMenu();
 void gameOver(int score);
+void drawMenu(WINDOW *win, const char *title, int n, int choice,
+              const char *choice_names[]);
+int getMenuSelection(const char *title, int n, const char *choice_names[]);
 
 typedef enum MoveDirection { UP, DOWN, LEFT, RIGHT } MoveDirection;
 MoveDirection getMoveDirection(int ch, MoveDirection move);

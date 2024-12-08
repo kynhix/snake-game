@@ -98,71 +98,74 @@ void saveToFile() {
 
 void mainMenu() {
   const char *choices[] = {"Play Game", "High Scores", "Settings", "Exit"};
-  const int NUM_CHOICES = 4;
-  const char *TITLE = "Main Menu";
+  while (1) {
+    switch (getMenuSelection("Main Menu", 4, choices)) {
+    case -1:
+      return;
+    case 0:
+      startGameLoop();
+      break;
+    case 1:
+      // todo implement high score
+      break;
+    case 2:
+      // todo implement settings
+      break;
+    case 3:
+      return;
+    }
+  }
+
+  // case 10: // Enter key
+  //   break;
+}
+
+int getMenuSelection(const char *title, int n, const char *choice_names[]) {
   int choice = 0;
-  WINDOW *win = newwin(NUM_CHOICES + 2, 40, 0, 0);
+  WINDOW *win = newwin(n + 2, 40, 0, 0);
   keypad(win, TRUE); // enable arrow keys
 
-  nodelay(win, TRUE);
   while (1) {
-    // key detection
-    const int c = wgetch(win);
-    switch (c) {
+    drawMenu(win, title, n, choice, choice_names);
+    switch (wgetch(win)) {
     case KEY_UP:
       if (choice == 0)
-        choice = NUM_CHOICES - 1;
+        choice = n - 1;
       else
         --choice;
       break;
     case KEY_DOWN:
-      if (choice == NUM_CHOICES - 1)
+      if (choice == n - 1)
         choice = 0;
       else
         ++choice;
       break;
-    case 10: // Enter key
-      switch (choice) {
-      case 0:
-        startGameLoop();
-        break;
-      case 1:
-        // todo implement high score
-        break;
-      case 2:
-        // todo implement settings
-        break;
-      case 3:
-        goto cleanup;
-      }
-      break;
     case 'q': // Quit on 'q'
-      goto cleanup;
+      return -1;
+    case 10:
+      return choice;
     }
-
-    // clear previous screen
-    werase(win);
-
-    // draw menu border
-    box(win, 0, 0);
-    mvwprintw(win, 0, 1, "%s", TITLE);
-    for (int i = 0; i < NUM_CHOICES; ++i) {
-      if (choice == i) {
-        // bold and star selected choice
-        wattron(win, A_BOLD);
-        mvwprintw(win, i + 1, 3, "* %-18s", choices[i]);
-        wattroff(win, A_BOLD);
-      } else {
-        mvwprintw(win, i + 1, 3, "%-20s", choices[i]);
-      }
-    }
-    wrefresh(win);
-
-    waitNextFrame();
   }
+}
 
-cleanup:
-  delwin(win);
+void drawMenu(WINDOW *win, const char *title, int n, int choice,
+              const char *choice_names[]) {
+  // clear previous screen
+  werase(win);
+  // draw menu border
+  box(win, 0, 0);
+  mvwprintw(win, 0, 1, "%s", title);
+  for (int i = 0; i < n; ++i) {
+    if (choice == i) {
+      // bold and star selected choice
+      wattron(win, A_BOLD);
+      mvwprintw(win, i + 1, 3, "* %-18s", choice_names[i]);
+      wattroff(win, A_BOLD);
+    } else {
+      mvwprintw(win, i + 1, 3, "%-20s", choice_names[i]);
+    }
+  }
+  wrefresh(win);
 }
 
 void cleanup() { endwin(); }
