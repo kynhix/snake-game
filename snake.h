@@ -40,6 +40,7 @@ typedef struct snake_cell {
 snake_cell *createSnakeCell(int x, int y, snake_cell *next);
 void freeSnake(snake_cell *head);
 void removeSnakeTail(snake_cell *head);
+bool isSnakeColliding(snake_cell *head);
 
 typedef struct snake_food {
   int x, y;

@@ -224,12 +224,7 @@ void startGameLoop() {
     // apply movement
     head = createSnakeCell(head->x + dx, head->y + dy, head);
 
-    // get max w and h of screen
-    int w, h;
-    getmaxyx(stdscr, h, w);
-
-    // check if snake is colliding with a wall
-    if (head->x < 1 || head->y < 1 || head->x == w || head->y == h) {
+    if (isSnakeColliding(head)) {
       break;
     }
 
@@ -252,6 +247,26 @@ void startGameLoop() {
 
   // game over screen
   gameOver(score);
+}
+
+bool isSnakeColliding(snake_cell *head) {
+  // bounds checking
+  int w, h;
+  getmaxyx(stdscr, h, w);
+  if (head->x < 1 || head->y < 1 || head->x >= w || head->y >= h) {
+    return true;
+  }
+
+  // body collision
+  snake_cell *node = head->next;
+  while (node) {
+    if (node->x == head->x && node->y == head->y) {
+      return true;
+    }
+    node = node->next;
+  }
+
+  return false;
 }
 
 void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head, int w, int h) {}
