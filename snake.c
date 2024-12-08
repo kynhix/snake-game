@@ -285,7 +285,7 @@ bool isSnakeColliding(snake_cell *head) {
   // bounds checking
   int w, h;
   getmaxyx(stdscr, h, w);
-  if (head->x < 1 || head->y < 1 || head->x >= w || head->y >= h) {
+  if (head->x < 1 || head->y < 1 || head->x >= w - 1 || head->y >= h - 1) {
     return true;
   }
 
