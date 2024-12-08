@@ -50,3 +50,5 @@ typedef struct snake_food {
   int x, y;
 } snake_food;
 void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head);
+
+void drawSnakeGame(snake_cell *head, snake_food food, int score);

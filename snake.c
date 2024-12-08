@@ -220,6 +220,8 @@ void startGameLoop() {
 
   nodelay(stdscr, TRUE);
   while (1) {
+    drawSnakeGame(head, food, score);
+
     waitNextFrame();
 
     if (isSkipFrame(&frame_state)) {
@@ -229,22 +231,6 @@ void startGameLoop() {
 
     // Key detection
     movement = getMoveDirection(getch(), movement);
-
-    erase();
-    // draw snek
-    mvaddch(head->y, head->x, '@');
-    snake_cell *node = head->next;
-    // snek body
-    while (node) {
-      mvaddch(node->y, node->x, '0');
-      node = node->next;
-    }
-    // draw food
-    mvaddch(food.y, food.x, '*');
-    // draw border
-    box(stdscr, 0, 0);
-    mvwprintw(stdscr, 0, 1, "Score: %d", score);
-    refresh();
 
     // Movement
     int dx = 0, dy = 0;
@@ -275,6 +261,24 @@ void startGameLoop() {
 
   // game over screen
   gameOver(score);
+}
+
+void drawSnakeGame(snake_cell *head, snake_food food, int score) {
+  erase();
+  // draw snek
+  mvaddch(head->y, head->x, '@');
+  snake_cell *node = head->next;
+  // snek body
+  while (node) {
+    mvaddch(node->y, node->x, '0');
+    node = node->next;
+  }
+  // draw food
+  mvaddch(food.y, food.x, '*');
+  // draw border
+  box(stdscr, 0, 0);
+  mvwprintw(stdscr, 0, 1, "Score: %d", score);
+  refresh();
 }
 
 bool isSnakeColliding(snake_cell *head) {
