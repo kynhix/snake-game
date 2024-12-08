@@ -199,12 +199,12 @@ void drawMenu(WINDOW *win, const char *title, int n, int choice,
 void cleanup() { endwin(); }
 
 bool isSkipFrame(int *frame_state) {
-  *frame_state = *frame_state - global_state.snake_speed;
+  *frame_state -= global_state.snake_speed;
   if (*frame_state > 0) {
-    return false;
+    return true;
   }
   *frame_state = 5;
-  return true;
+  return false;
 }
 
 void startGameLoop() {
@@ -223,6 +223,7 @@ void startGameLoop() {
     waitNextFrame();
 
     if (isSkipFrame(&frame_state)) {
+      // Key detection
       continue;
     }
 
@@ -257,8 +258,7 @@ void startGameLoop() {
     }
 
     if (head->x == food.x && head->y == food.y) {
-      food.x = 20;
-      food.y = 20;
+      spawnFoodOnEmptySquare(&food, head);
       score++;
     } else {
       // remove snake tail
@@ -297,23 +297,44 @@ bool isSnakeColliding(snake_cell *head) {
   return false;
 }
 
-void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head, int w, int h) {
+void spawnFoodOnEmptySquare(snake_food *food, snake_cell *head) {
+  int w, h;
+  getmaxyx(stdscr, h, w);
   w = w - 2;
   h = h - 2;
 
   int n = w * h;
   int valid_cells[n];
-  memset(valid_cells, 1, n * sizeof(int));
+  for (int i = 0; i < n; ++i)
+    valid_cells[i] = i;
 
   while (head) {
-    valid_cells[head->x - 1 + head->y * (w + 1)] = 0;
+    valid_cells[(head->x - 1) + (head->y - 1) * (w + 1)] = 0;
     head = head->next;
   }
 
   int m = n - 1;
-  while (!valid_cells[m]) {
+  while (m > -1 && !valid_cells[m])
     --m;
+
+  if (m == -1) {
+    // WINNER
+    return;
   }
+  for (int i = 0; i < m; ++i) {
+    if (valid_cells[i])
+      continue;
+
+    valid_cells[i] = valid_cells[m];
+    valid_cells[m] = 0;
+
+    while (!valid_cells[--m])
+      ;
+  }
+
+  const int r = rand() % (m + 1);
+  food->x = r % (w + 1) + 1;
+  food->y = r / (w + 1) + 1;
 }
 
 MoveDirection getMoveDirection(int ch, MoveDirection move) {
