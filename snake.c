@@ -30,48 +30,34 @@ void loadFromSave() {
     global_state.snake_speed = 3;
     return;
   }
-
   global_state.snake_speed = fgetc(fptr) - '0';
-  char namebuf[100];
-  char scorebuf[100];
+  fscanf(fptr, "%*[\n]"); // skip to next line
+
+  char namebuf[64];
+  char scorebuf[64];
 
   while (fgets(namebuf, sizeof(namebuf), fptr) &&
          fgets(scorebuf, sizeof(scorebuf), fptr)) {
-    // Remove newline characters
-    namebuf[strcspn(namebuf, "\n")] = 0;
-    scorebuf[strcspn(scorebuf, "\n")] = 0;
 
-    // Allocate and check new node
-    high_score_node *newScore = malloc(sizeof(high_score_node));
-    if (!newScore) {
-      fclose(fptr);
-      return;
-    }
+    namebuf[strlen(namebuf) - 1] = '\0';
+    scorebuf[strlen(scorebuf) - 1] = '\0';
 
-    // Allocate and check name string
-    newScore->name = malloc(strlen(namebuf) + 1); // +1 for null terminator
-    if (!newScore->name) {
-      free(newScore);
-      fclose(fptr);
-      return;
-    }
+    high_score_node *high_score = malloc(sizeof(high_score_node));
+    high_score->next = NULL;
+    high_score->prev = NULL;
+    high_score->score = atoi(scorebuf);
+    high_score->name = malloc(sizeof(char) * 64);
+    strncpy(high_score->name, namebuf, 64);
 
-    // Copy data
-    strcpy(newScore->name, namebuf);
-    newScore->score = atoi(scorebuf);
-
-    // Initialize pointers
-    newScore->next = NULL;
-    newScore->prev = NULL;
-
-    // Link into list
     if (!global_state.high_score_head) {
-      global_state.high_score_head = newScore;
-    } else {
-      newScore->next = global_state.high_score_head;
-      global_state.high_score_head->prev = newScore;
-      global_state.high_score_head = newScore;
+      global_state.high_score_head = high_score;
+      continue;
     }
+    high_score_node *node = global_state.high_score_head;
+    while (node->next)
+      node = node->next;
+    node->next = high_score;
+    high_score->prev = node;
   }
 
   fclose(fptr);
@@ -142,7 +128,25 @@ void speedMenu() {
   saveToFile();
 }
 
-void highscoreMenu() {}
+void highscoreMenu() {
+  WINDOW *win = newwin(12, 100, 0, 0);
+  int i = 1;
+  box(win, 0, 0);
+  mvwprintw(win, 0, 1, "High Scores:");
+  mvwprintw(win, 11, 1, "Press Enter to Go Back");
+  high_score_node *high_score = global_state.high_score_head;
+  while (high_score) {
+    mvwprintw(win, i, 1, "%d %-20s - %d", i, high_score->name,
+              high_score->score);
+    high_score = high_score->next;
+    ++i;
+  }
+  wrefresh(win);
+  while (getch() != 10)
+    usleep(10000);
+  erase();
+  refresh();
+}
 
 int getMenuSelection(const char *title, int n, const char *choice_names[],
                      int choice) {
